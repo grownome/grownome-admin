@@ -97,7 +97,7 @@
               [link-to-customers-page]
               [button
                :label "Sign In"
-               :on-click (re-frame/dispatch [::events/sign-in])]]])
+               :on-click #(re-frame/dispatch [::events/sign-in])]]])
 
 (defn- panels [panel-name]
   (case panel-name
