@@ -15,30 +15,30 @@
  (fn-traced [db [_ active-panel]]
    (assoc db :active-panel active-panel)))
 
-;; Firebase sign-in
+;; Firebase auth sign-in
 (re-frame/reg-event-fx
  ::sign-in
  (fn [_ _] {:firebase/google-sign-in {:sign-in-method :popup}}))
 
 
-;;; Firebase sign-out
+;;; Firebase auth sign-out
 (re-frame/reg-event-fx
  ::sign-out
  (fn [_ _] {:firebase/sign-out nil}))
 
 
-;;; Firebase - Store the user object
+;;; Firebase auth - Store the user object
 (re-frame/reg-event-db
  ::set-user
  (fn [db [_ user]]
    (assoc db :user user)))
 
-;;; Firebase - A subscription to return the user to the library
+;;; Firebase auth - A subscription to return the user to the library
 (re-frame/reg-sub
  ::user
  (fn [db _] (:user db)))
 
-;;; Firebase error
+;;; Firebase auth error
 (re-frame/reg-event-db
  ::firebase-error
  ;; Takes parameters of 1) Db and 2) the event
@@ -47,7 +47,7 @@
  (fn-traced [db [_ error]]
             (assoc db :firebase-error error)))
 
-;;; Firebase get trial
+;;; Firebase retrieve device collection, save into DB
 (re-frame/reg-event-fx
  ::device-get
  (fn [_ _] {:firestore/get {:path-collection [:device-names]
