@@ -17,3 +17,16 @@
  ::devices
  (fn [db _]
    (get-in db [:devices :docs])))
+
+;; sort device listings
+(re-frame/reg-sub
+ ::devices-sorted
+ :<- [::devices] ;;synctatic sugar to pull in devices subscription
+ ;; can combine subscriptions if needed by repeating 
+ (fn [devices [_ sorted? field inverted?] _]
+   (if @sorted?
+     (let [sorted-devices (sort-by #(get (:data %) @field) devices)]
+       (if @inverted?
+         (reverse sorted-devices)
+         sorted-devices))
+     devices)))
