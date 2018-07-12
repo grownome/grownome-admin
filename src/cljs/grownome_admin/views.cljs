@@ -5,6 +5,7 @@
    [re-com.core :refer [p row-button h-box v-box box gap line scroller border label title button checkbox hyperlink-href slider horizontal-bar-tabs info-button input-text input-textarea popover-anchor-wrapper popover-content-wrapper popover-tooltip] :refer-macros [handler-fn]]
    [re-com.buttons :refer [row-button-args-desc md-icon-button]]
    [re-com.util :refer [enumerate]]
+   [re-com.modal-panel :refer [modal-panel]]
    [grownome-admin.subs :as subs]
    [reagent.core :as    reagent]
    ))
@@ -25,9 +26,13 @@
    :label "Customers"
    :href "#/customers"])
 
+
+
 ;; home page
 (defn home-panel []
   )
+
+
 
 
 ;; devices page
@@ -37,83 +42,116 @@
 ;; database. For every entry in Firestore, a new row is created with
 ;; the designated formatting.
 (defn device-row [device]
-  [h-box
-   :class "rc-div-table-row"
-   :width "1060px"
-   :gap "15px"
-   :children [              ;;use to bump columns to the right
-              [box :size "initial" :width "1px" :child [title :label ""]]
-              [box :size "initial" :width "160px"
-               :child [p (get device "deviceName" "Default Value")]]
-              [box :size "initial" :width "100px"
-               :child [p (get device "owned" "Default Value")]]
-              [gap :size "17px"] ;; required to accomodate Owned? sorting buttons
-              [box :size "initial" :width "115px"
-               :child [p (get device "ownedBy" "Not Owned")]]
-              [box :size "initial" :width "185px"
-               :child [p (get device "initialStateLink" "Default Value")]]
-              [box :size "initial" :width "180px"
-               :child [p (get device "number" "Default Value")]]
-              [box :size "initial" :width "170px"
-               :child [p (get device "assignedDate" "Default Value")]]
-              [md-icon-button :md-icon-name "zmdi zmdi-edit"]                                ;;;;;;add on-click
-              ]
-   ])
+  (let [edit-mode?           (reagent/atom false)
+        text-val        (reagent/atom nil)
+        status          (reagent/atom nil)
+        status-tooltip  (reagent/atom "")
 
-;; Creates the actual table, including the headers and the columns (that were
-;; formatted in device-row)
-(defn devices-list []
-  (let [sorted? (reagent/atom false)
-        sorted-field (reagent/atom "")
-        inverted? (reagent/atom false)
-               ;; @ grabs these values from the atom, and keeps you safe from multiple
-        ;; concurrent changes
         ]
-    (fn [] ;; needed when using multiple atoms so that things update properly
-      (let [devices (re-frame/subscribe [::subs/devices-sorted sorted? sorted-field inverted?])]
-      [v-box
-       :children [[h-box
-                   :max-width "1060px"
-                   :style {:margin "0"}
-                   :gap "0px"
-                   :children [[box :size "initial" :width "160px"
-                               :child [title :level :level2 :label "Device Name"]]
-                              [gap :size "15px"]
-                              [box :size "initial" :width "100px"
-                               :child [title :level :level2 :label "Owned?"]]
-                              [md-icon-button :size :smaller
-                               :style {:padding-top "20px"}
-                               :on-click #(do (reset! sorted? true)
-                                              (reset! sorted-field "owned")
-                                              (reset! inverted? false))
-                               :md-icon-name "zmdi zmdi-arrow-back zmdi-hc-rotate-90"]
-                              [md-icon-button :size :smaller
-                               :style {:padding-top "20px"}
-                               :on-click #(do (reset! sorted? true)
-                                              (reset! sorted-field "owned")
-                                              (reset! inverted? true))
-                               :md-icon-name "zmdi zmdi-arrow-forward zmdi-hc-rotate-90"]
-                              [gap :size "15px"]
-                              [box :size "initial" :width "115px"
-                               :child [title :level :level2 :label "Owned By"]]
-                              [gap :size "15px"]
-                              [box :size "initial" :width "185px"
-                               :child [title :level :level2 :label "Initial State Link"]]
-                              [gap :size "15px"]
-                              [box :size "initial" :width "170px"
-                               :child [title :level :level2 :label "Device Number"]]
-                              [gap :size "15px"]
-                              [box :size "initial" :width "170px"
-                               :child [title :level :level2 :label "Assigned Date"]]
-                              ]
-                   ]
-                ;; code below pulls in the devices from device-row function
-                [h-box
-                 :children [[v-box ;; Device name
-                             :children (into []
-                                             (for [device @devices]
-                                               (device-row (:data device))))]
-                            ]]]]))))
+    [h-box
+     :class "rc-div-table-row"
+     :width "1060px"
+     :gap "15px"
+     :children [              ;;use to bump columns to the right
+                [box :size "initial" :width "1px" :child [title :label ""]]
+                [box :size "initial" :width "160px"
+                 :child [p (get device "deviceName" "Default Value")]]
+                [box :size "initial" :width "100px"
+                 :child [p (get device "owned" "Default Value")]]
+                [gap :size "17px"] ;; required to accomodate Owned? sorting buttons
+                [box :size "initial" :width "115px"
+                 :child [p (get device "ownedBy" "Not Owned")]]
+                [box :size "initial" :width "185px"
+                 :child [p (get device "initialStateLink" "Default Value")]]
+                [box :size "initial" :width "180px"
+                 :child [p (get device "number" "Default Value")]]
+                [box :size "initial" :width "170px"
+                 :child [p (get device "assignedDate" "Default Value")]]
+                [md-icon-button :md-icon-name "zmdi zmdi-edit"
+                 :on-click #(do (reset! edit-mode? true)
+                                (println "Trying to turn on edit mode"))];;;;;;add on-click
+                (when @edit-mode? [[h-box
+                               :children [[box :size "initial" :width "1px" :child [title :label ""]]
+                                          [box :size "initial" :width "160px"
+                                           :child [p (get device "deviceName" "Default Value")]]
+                                          [input-text
+                                           :model text-val
+                                           :on-change nil
+                                           :status @status
+                                           :width "100px"
+                                           :height "20px"
+                                           :placeholder "Hello"
+                                           ]
+                                          [gap :size "17px"] ;; required to accomodate Owned? sorting buttons
+                                          [box :size "initial" :width "115px"
+                                           :child [p (get device "ownedBy" "Not Owned")]]
+                                          [box :size "initial" :width "185px"
+                                           :child [p (get device "initialStateLink" "Default Value")]]
+                                          [box :size "initial" :width "180px"
+                                           :child [p (get device "number" "Default Value")]]
+                                          [box :size "initial" :width "170px"
+                                           :child [p (get device "assignedDate" "Default Value")]]
+                                          [md-icon-button :md-icon-name "zmdi zmdi-edit"
+                                           :on-click #(reset! edit-mode? false)
+                                           ]]]])
+                ]]))
+
+
+
+  ;; Creates the actual table, including the headers and the columns (that were
+  ;; formatted in device-row)
+  (defn devices-list []
+    (let [sorted? (reagent/atom false)
+          sorted-field (reagent/atom "")
+          inverted? (reagent/atom false)
+          ;; @ grabs these values from the atom, and keeps you safe from multiple
+          ;; concurrent changes
+          ]
+      (fn [] ;; needed when using multiple atoms so that things update properly
+        (let [devices (re-frame/subscribe [::subs/devices-sorted sorted? sorted-field inverted?])]
+          [v-box
+           :children [[h-box
+                       :max-width "1060px"
+                       :style {:margin "0"}
+                       :gap "0px"
+                       :children [[box :size "initial" :width "160px"
+                                   :child [title :level :level2 :label "Device Name"]]
+                                  [gap :size "15px"]
+                                  [box :size "initial" :width "100px"
+                                   :child [title :level :level2 :label "Owned?"]]
+                                  [md-icon-button :size :smaller
+                                   :style {:padding-top "20px"}
+                                   :on-click #(do (reset! sorted? true)
+                                                  (reset! sorted-field "owned")
+                                                  (reset! inverted? false))
+                                   :md-icon-name "zmdi zmdi-arrow-back zmdi-hc-rotate-90"]
+                                  [md-icon-button :size :smaller
+                                   :style {:padding-top "20px"}
+                                   :on-click #(do (reset! sorted? true)
+                                                  (reset! sorted-field "owned")
+                                                  (reset! inverted? true))
+                                   :md-icon-name "zmdi zmdi-arrow-forward zmdi-hc-rotate-90"]
+                                  [gap :size "15px"]
+                                  [box :size "initial" :width "115px"
+                                   :child [title :level :level2 :label "Owned By"]]
+                                  [gap :size "15px"]
+                                  [box :size "initial" :width "185px"
+                                   :child [title :level :level2 :label "Initial State Link"]]
+                                  [gap :size "15px"]
+                                  [box :size "initial" :width "170px"
+                                   :child [title :level :level2 :label "Device Number"]]
+                                  [gap :size "15px"]
+                                  [box :size "initial" :width "170px"
+                                   :child [title :level :level2 :label "Assigned Date"]]
+                                  ]
+                       ]
+                      ;; code below pulls in the devices from device-row function
+                      [h-box
+                       :children [[v-box ;; Device name
+                                   :children (into []
+                                                   (for [device @devices]
+                                                     (device-row (:data device))))]
+                                  ]]]]))))
 
 (defn devices-panel []
   [v-box
