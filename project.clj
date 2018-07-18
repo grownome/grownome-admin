@@ -18,15 +18,20 @@
   :clean-targets ^{:protect false} ["resources/public/js/compiled" "target"
                                     "test/js"]
 
-  :figwheel {:css-dirs ["resources/public/css"]}
+  :figwheel {:css-dirs ["resources/public/css"]
+             :nrepl-middleware ["cemerick.piggieback/wrap-cljs-repl"]}
+
+  :repl-options {:nrepl-middleware [cemerick.piggieback/wrap-cljs-repl]}
 
   :profiles
   {:dev
-   {:dependencies [[binaryage/devtools "0.9.10"]
+   {
+    :dependencies [[binaryage/devtools "0.9.10"]
                    [day8.re-frame/re-frame-10x "0.3.3"]
                    [day8.re-frame/tracing "0.5.1"]
+                   [figwheel-sidecar "0.5.4-5"]
+                   [com.cemerick/piggieback "0.2.2-SNAPSHOT"]
                    [re-frisk "0.5.3"]]
-
     :plugins      [[lein-figwheel "0.5.16"]
                    [lein-doo "0.1.8"]]}
    :prod { :dependencies [[day8.re-frame/tracing-stubs "0.5.1"]]}}
