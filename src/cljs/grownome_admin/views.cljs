@@ -2,9 +2,12 @@
   (:require
    [re-frame.core :as re-frame]
    [grownome-admin.events :as events]
-   [re-com.core :refer [p h-box v-box box gap line scroller border label title button checkbox hyperlink-href slider horizontal-bar-tabs info-button
-                        input-text input-textarea popover-anchor-wrapper popover-content-wrapper popover-tooltip] :refer-macros [handler-fn]]
+   [re-com.core :refer [p row-button h-box v-box box gap line scroller border label title button checkbox hyperlink-href slider horizontal-bar-tabs info-button input-text input-textarea popover-anchor-wrapper popover-content-wrapper popover-tooltip] :refer-macros [handler-fn]]
+   [re-com.buttons :refer [row-button-args-desc md-icon-button]]
+   [re-com.util :refer [enumerate]]
+   [re-com.modal-panel :refer [modal-panel]]
    [grownome-admin.subs :as subs]
+   [reagent.core :as    reagent]
    ))
 
 ;; page links
@@ -23,58 +26,139 @@
    :label "Customers"
    :href "#/customers"])
 
+
+
 ;; home page
-
-(defn home-title []
-  (let [name (re-frame/subscribe [::subs/name])]
-    [title
-     :label (str )
-     :level :level1]))
-
 (defn home-panel []
-  [v-box
-   :gap "1em"
-   :children [[home-title]
-              [link-to-devices-page]]])
+  )
+
+
 
 
 ;; devices page
-(defn devices-title []
-  [title
-   :label "This is the Devices Page."
-   :level :level1])
 
+;; formats the individual rows in the table. Boxes are included to add custom
+;; alignment to match the table headers. Accesses firestore "device-names"
+;; database. For every entry in Firestore, a new row is created with
+;; the designated formatting.
 (defn device-row [device]
-  [h-box
-   :children [title (get device "deviceName" "Default Value")]])
+  (let [edit-mode?           (reagent/atom false)
+        text-val        (reagent/atom "")
+        status          (reagent/atom false)
+        status-tooltip  (reagent/atom "")]
+    (fn [device]
+      [h-box
+       :class "rc-div-table-row"
+       :width "1060px"
+       :gap "15px"
+       :children
+       (if (not @edit-mode?)
+         [              ;;use to bump columns to the right
+          [box :size "initial" :width "1px" :child [title :label ""]]
+          [box :size "initial" :width "160px"
+           :child [p (get device "deviceName" "Default Value")]]
+          [box :size "initial" :width "100px"
+           :child [p (get device "owned" "Default Value")]]
+          [gap :size "17px"] ;; required to accomodate Owned? sorting buttons
+          [box :size "initial" :width "115px"
+           :child [p (get device "ownedBy" "Not Owned")]]
+          [box :size "initial" :width "185px"
+           :child [p (get device "initialStateLink" "Default Value")]]
+          [box :size "initial" :width "180px"
+           :child [p (get device "number" "Default Value")]]
+          [box :size "initial" :width "170px"
+           :child [p (get device "assignedDate" "Default Value")]]
+          [md-icon-button :md-icon-name "zmdi zmdi-edit"
+           :on-click #(reset! edit-mode? true)]];;;;;;add on-click
+         [[box :size "initial" :width "1px" :child [title :label ""]]
+          [box :size "initial" :width "160px"
+           :child [p (get device "deviceName" "Default Value")]]
+          [input-text
+           :model text-val
+           :on-change #(reset! text-val %)
+           :width "100px"
+           :height "20px"
+           :placeholder "Hello"]
+          [gap :size "17px"] ;; required to accomodate Owned? sorting buttons
+          [box :size "initial" :width "115px"
+           :child [p (get device "ownedBy" "Not Owned")]]
+          [box :size "initial" :width "185px"
+           :child [p (get device "initialStateLink" "Default Value")]]
+          [box :size "initial" :width "180px"
+           :child [p (get device "number" "Default Value")]]
+          [box :size "initial" :width "170px"
+           :child [p (get device "assignedDate" "Default Value")]]
+          [md-icon-button :md-icon-name "zmdi zmdi-edit"
+           :on-click #(reset! edit-mode? false)
+           ]]
+       )])))
 
-(defn devices-list []
-  (let [devices (re-frame/subscribe [::subs/devices])]
-    [v-box
-     :children [[h-box
-                 :gap "2em"
-                 :children [[title :label "Device Name"]
-                            [title :label "Owned?"]
-                            [title :label "Initial State Link"]
-                            [title :label "Device Number"]
-                            [title :label "Assigned Date"]
-                            ]
-                 ]
-                [v-box
-                 :children (into []
-                                 (for [device @devices]
-                                   (device-row (:data device))))
-     ]]]))
+
+
+  ;; Creates the actual table, including the headers and the columns (that were
+  ;; formatted in device-row)
+  (defn devices-list []
+    (let [sorted? (reagent/atom false)
+          sorted-field (reagent/atom "")
+          inverted? (reagent/atom false)
+          devices (re-frame/subscribe [::subs/devices-sorted sorted? sorted-field inverted?])
+          ;; @ grabs these values from the atom, and keeps you safe from multiple
+          ;; concurrent changes
+          ]
+      (fn [] ;; needed when using multiple atoms so that things update properly
+        [v-box
+         :children [[h-box
+                     :max-width "1060px"
+                     :style {:margin "0"}
+                     :gap "0px"
+                     :children [[box :size "initial" :width "160px"
+                                 :child [title :level :level2 :label "Device Name"]]
+                                [gap :size "15px"]
+                                [box :size "initial" :width "100px"
+                                 :child [title :level :level2 :label "Owned?"]]
+                                [md-icon-button :size :smaller
+                                 :style {:padding-top "20px"}
+                                 :on-click #(do (reset! sorted? true)
+                                                (reset! sorted-field "owned")
+                                                (reset! inverted? false))
+                                 :md-icon-name "zmdi zmdi-arrow-back zmdi-hc-rotate-90"]
+                                [md-icon-button :size :smaller
+                                 :style {:padding-top "20px"}
+                                 :on-click #(do (reset! sorted? true)
+                                                (reset! sorted-field "owned")
+                                                (reset! inverted? true))
+                                 :md-icon-name "zmdi zmdi-arrow-forward zmdi-hc-rotate-90"]
+                                [gap :size "15px"]
+                                [box :size "initial" :width "115px"
+                                 :child [title :level :level2 :label "Owned By"]]
+                                [gap :size "15px"]
+                                [box :size "initial" :width "185px"
+                                 :child [title :level :level2 :label "Initial State Link"]]
+                                [gap :size "15px"]
+                                [box :size "initial" :width "170px"
+                                 :child [title :level :level2 :label "Device Number"]]
+                                [gap :size "15px"]
+                                [box :size "initial" :width "170px"
+                                 :child [title :level :level2 :label "Assigned Date"]]
+                                ]
+                     ]
+                    ;; code below pulls in the devices from device-row function
+                    (if-let [ds @devices]
+                      [h-box
+                       :children [[v-box ;; Device name
+                                   :children (into [] (for [d ds]
+                                                        (do
+                                                          (js/console.log (clj->js (:data d)))
+                                                          [device-row (:data d)])))
+                                  ]]])]])))
 
 (defn devices-panel []
   [v-box
    :gap "1em"
-   :children [[devices-title]
-              [button
+   :children [[button ;;use to refresh device listing
                :label "Refresh Device Listing"
-               :on-click (re-frame/dispatch [::events/device-get])]
-              [devices-list]
-              ]])
+               :on-click #(re-frame/dispatch [::events/device-get])]
+              [devices-list]]])
 
 ;; customers page
 (defn customers-title []
@@ -89,15 +173,54 @@
               [link-to-home-page]]])
 
 ;; navigation
+(defn useful-hyperlinks []
+  (let [target (reagent/atom "_blank")
+        href? (reagent/atom true)]
+    (fn
+      []
+      [v-box
+       :size "auto"
+       :gap "10px"
+       :children [[hyperlink-href ;;Firebase console link
+                   :label "Open Firebase"
+                   :href (when href? "https://console.firebase.google.com/u/0/project/grownome-app/overview")
+                   :target (when href? target)
+                   ]
+                  [hyperlink-href
+                   :label "Open Pivotal" ;;Pivotal tracker link
+                   :href (when href? "https://www.pivotaltracker.com/n/projects/2140870")
+                   :target (when href? target)
+                   ]
+                  [hyperlink-href
+                   :label "Open Google Cloud" ;;Google Cloud Platform link
+                   :href (when href? "https://console.cloud.google.com/home/dashboard?project=grownome&_ga=2.67711889.-1279443608.1514820147")
+                   :target (when href? target)
+                   ]
+                  [hyperlink-href
+                   :label "Open Google Drive" ;;Pivotal tracker link
+                   :href (when href? "https://drive.google.com/drive/u/0/my-drive")
+                   :target (when href? target)
+                   ]
+                  [hyperlink-href
+                   :label "Open Resin.io" ;;Pivotal tracker link
+                   :href (when href? "https://dashboard.resin.io/login")
+                   :target (when href? target)
+                   ]]])))
+
 (defn nav-panel []
   [v-box
-   :gap "1em"
-   :children [[link-to-home-page]
+   :gap "5px"
+   :children [[title :label "Pages" :underline? true :level :level4]
+              [link-to-home-page]
               [link-to-devices-page]
               [link-to-customers-page]
+              [title :label "Links" :underline? true :level :level4]
+              [useful-hyperlinks]
+              [gap :size "140px"]
               [button
                :label "Sign In"
-               :on-click #(re-frame/dispatch [::events/sign-in])]]])
+               :on-click #(re-frame/dispatch [::events/sign-in])]
+              ]])
 
 (defn- panels [panel-name]
   (case panel-name
@@ -129,5 +252,7 @@
                  :children [[box :size "150px"
                              :style {:margin-left "20px" :margin-top "40px"}
                              :child [panels :nav-panel]]
-                            [box :child [panels @active-panel]]]]
+                            [box
+                             :style {:margin-top "40px"}
+                             :child [panels @active-panel]]]]
                 ]]))
