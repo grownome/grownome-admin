@@ -42,8 +42,9 @@
 ;; database. For every entry in Firestore, a new row is created with
 ;; the designated formatting.
 (defn device-row [device]
-  (let [edit-mode?           (reagent/atom false)
-        text-val        (reagent/atom "")
+  (let [edit-mode?      (reagent/atom false)
+        owned-val        (reagent/atom "")
+        ISLink-val        (reagent/atom "")
         status          (reagent/atom false)
         status-tooltip  (reagent/atom "")]
     (fn [device]
@@ -69,27 +70,36 @@
           [box :size "initial" :width "170px"
            :child [p (get device "assignedDate" "Default Value")]]
           [md-icon-button :md-icon-name "zmdi zmdi-edit"
-           :on-click #(reset! edit-mode? true)]];;;;;;add on-click
+           :on-click #(reset! edit-mode? true)]]
          [[box :size "initial" :width "1px" :child [title :label ""]]
           [box :size "initial" :width "160px"
            :child [p (get device "deviceName" "Default Value")]]
           [input-text
-           :model text-val
-           :on-change #(reset! text-val %)
+           :model owned-val
+           :on-change #(do (re-frame/dispatch [::events/owned-updatedb owned-val])
+                           (println "things are triggering")
+                           (reset! owned-val %))
            :width "100px"
-           :height "20px"
-           :placeholder "Hello"]
+           :height "20px"]
           [gap :size "17px"] ;; required to accomodate Owned? sorting buttons
           [box :size "initial" :width "115px"
            :child [p (get device "ownedBy" "Not Owned")]]
-          [box :size "initial" :width "185px"
-           :child [p (get device "initialStateLink" "Default Value")]]
+          [input-text
+           :model ISLink-val
+           :on-change #(do (re-frame/dispatch [::events/owned-updatedb owned-val])
+                           (reset! ISLink-va
+l %))
+           :width "185px"
+           :height "20px"]
           [box :size "initial" :width "180px"
            :child [p (get device "number" "Default Value")]]
           [box :size "initial" :width "170px"
            :child [p (get device "assignedDate" "Default Value")]]
           [md-icon-button :md-icon-name "zmdi zmdi-edit"
-           :on-click #(reset! edit-mode? false)
+           :on-click #(do (re-frame/dispatch [::events/owned-updatedb owned-val])
+                          (re-frame/dispatch [::events/islink-updatedb ISLink-val])
+                          (reset! edit-mode? false)
+                          )
            ]]
        )])))
 
@@ -147,9 +157,7 @@
                       [h-box
                        :children [[v-box ;; Device name
                                    :children (into [] (for [d ds]
-                                                        (do
-                                                          (js/console.log (clj->js (:data d)))
-                                                          [device-row (:data d)])))
+                                                        (do [device-row (:data d)])))
                                   ]]])]])))
 
 (defn devices-panel []
