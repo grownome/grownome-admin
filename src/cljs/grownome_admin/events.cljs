@@ -2,8 +2,7 @@
   (:require
    [re-frame.core :as re-frame]
    [grownome-admin.db :as db]
-   [day8.re-frame.tracing :refer-macros [fn-traced defn-traced]]
-   ))
+   [day8.re-frame.tracing :refer-macros [fn-traced defn-traced]]))
 
 (re-frame/reg-event-db
  ::initialize-db

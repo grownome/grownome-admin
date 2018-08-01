@@ -24,19 +24,24 @@ META-m s i
 
 ```
 inside of your repl run
-```
+```clj
 (use 'figwheel-sidecar.repl-api)
 (start-figwheel!)
 (cljs-repl)
 ```
+
+
 ### Run tests:
 
 ```
-lein clean
-lein doo phantom test once
+META-m s i
+
 ```
 
-The above command assumes that you have [phantomjs](https://www.npmjs.com/package/phantomjs) installed. However, please note that [doo](https://github.com/bensu/doo) can be configured to run cljs.test in many other JS environments (chrome, ie, safari, opera, slimer, node, rhino, or nashorn).
+```
+(use 'figwheel-sidecar.repl-api)
+(start-figwheel! "test")
+```
 
 ## Production Build
 

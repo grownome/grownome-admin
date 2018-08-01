@@ -1,5 +1,6 @@
 (ns grownome-admin.runner
-    (:require [doo.runner :refer-macros [doo-tests]]
-              [grownome-admin.core-test]))
+  (:require
+   [grownome-admin.core-test]
+   [cljs.test :refer-macros [run-tests]]))
 
-(doo-tests 'grownome-admin.core-test)
+(run-tests 'grownome-admin.core-test)
