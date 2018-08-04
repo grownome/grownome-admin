@@ -28,7 +28,9 @@
     "release": "shadow-cljs release browser",
     "server": "shadow-cljs server",
     "clean": "rm -rf target; rm -rf resources/public/js",
-    "test": "shadow-cljs watch test"
+      "test": "shadow-cljs watch test",
+      "ci": "shadow-cljs compile ci",
+      "ci-test": "karma start --single-run"
   },
   "repository": {
     "type": "git",

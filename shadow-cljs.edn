@@ -24,6 +24,11 @@
                  :devtools {:http-port 8021
                             :http-root "resources/public/js/test"}}
 
+          :ci
+          {:target :karma
+           :output-to  "target/ci.js"
+           :ns-regexp  "-test$"}
+
           :browser {:target :browser
                     :modules {:main {:entries [grownome-admin.core]}}
                     :output-dir "resources/public/js/compiled"
