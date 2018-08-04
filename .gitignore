@@ -1,8 +1,8 @@
-/*.log
-/target
-/*-init.clj
-/resources/public/js/compiled/
-/resources/public/js/test/
+*.log
+target
+*-init.clj
+resources/public/js/compiled/
+resources/public/js/test/
 .shadow-cljs/
 out
 .nrepl-port
