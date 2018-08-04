@@ -1,7 +1,7 @@
 steps:
   - name: 'gcr.io/cloud-builders/npm'
     args: ['install']
-  - name: 'gcr.io/cloud-builders/shadow-cljs'
+  - name: 'gcr.io/grownome/shadow-cljs'
     args: ['compile', 'ci']
   - name: 'gcr.io/cloud-builders/npm'
     args: ['run', 'ci-test']
