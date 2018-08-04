@@ -1,0 +1,1 @@
+{"version":3,"file":"firebase.app.js","sources":["firebase/app.cljs"],"mappings":";;;AAGA,kBAAA,lBAACA,6BAAgCC","names":["js/goog.exportSymbol","js/module$node_modules$$firebase$app$dist$index_cjs.firebase"],"sourcesContent":["(ns firebase.app\n  (:require [\"@firebase/app\" :refer (firebase)]))\n\n(js/goog.exportSymbol \"firebase\" firebase)\n"]}
