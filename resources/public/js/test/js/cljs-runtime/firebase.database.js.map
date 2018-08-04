@@ -1,1 +1,0 @@
-{"version":3,"file":"firebase.database.js","sources":["firebase/database.cljs"],"mappings":"","names":[],"sourcesContent":["(ns firebase.database\n  (:require [\"@firebase/database\"]))\n\n"]}

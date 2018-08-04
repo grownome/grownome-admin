@@ -1,1 +1,0 @@
-{"version":3,"file":"firebase.firestore.js","sources":["firebase/firestore.cljs"],"mappings":"","names":[],"sourcesContent":["(ns firebase.firestore\n  (:require [\"@firebase/firestore\"]))\n"]}

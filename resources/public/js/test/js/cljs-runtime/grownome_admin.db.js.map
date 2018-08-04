@@ -1,1 +1,0 @@
-{"version":3,"file":"grownome_admin.db.js","sources":["grownome_admin/db.cljs"],"mappings":";;AAEA,+BAAA,2CAAA,qDAAA,/HAAKA","names":["grownome-admin.db/default-db"],"sourcesContent":["(ns grownome-admin.db)\r\n\r\n(def default-db\r\n  {:name \"re-frame\"})\r\n"]}

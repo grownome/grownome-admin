@@ -1,1 +1,0 @@
-{"version":3,"file":"firebase.auth.js","sources":["firebase/auth.cljs"],"mappings":"","names":[],"sourcesContent":["(ns firebase.auth\n  (:require [\"@firebase/auth\"]))\n"]}
