@@ -54,20 +54,20 @@
     (fn [device]
       [h-box
        :class "rc-div-table-row"
-       :width "1060px"
+       :width "1200px"
        :gap "15px"
        :children
        (if (not @edit-mode?)
          [              ;;use to bump columns to the right
           [box :size "initial" :width "1px" :child [title :label ""]]
-          [box :size "initial" :width "160px"
+          [box :size "initial" :width "170px"
            :child [p (get device "deviceName" "Default Value")]]
           [box :size "initial" :width "100px"
            :child [p (get device "owned" "Default Value")]]
           [gap :size "17px"] ;; required to accomodate Owned? sorting buttons
-          [box :size "initial" :width "115px"
+          [box :size "initial" :width "270px"
            :child [p (get device "ownedBy" "Not Owned")]]
-          [box :size "initial" :width "185px"
+          [box :size "initial" :width "250px"
            :child [p (get device "initialStateLink" "Default Value")]]
           [box :size "initial" :width "180px"
            :child [p (get device "number" "Default Value")]]
@@ -94,9 +94,9 @@
                            (reset! link-val %))
            :width "185px"
            :height "20px"]
-          [box :size "initial" :width "180px"
+          [box :size "initial" :width "210px"
            :child [p (get device "number" "Default Value")]]
-          [box :size "initial" :width "170px"
+          [box :size "initial" :width "180px"
            :child [p (str (split-delete-date (get device "assignedDate" "Default Value")))]]
           [md-icon-button :md-icon-name "zmdi zmdi-edit"
            :on-click #(do (re-frame/dispatch [::events/owned-updatedb owned-val])
@@ -121,10 +121,10 @@
       (fn [] ;; needed when using multiple atoms so that things update properly
         [v-box
          :children [[h-box
-                     :max-width "1060px"
+                     :max-width "1200px"
                      :style {:margin "0"}
                      :gap "0px"
-                     :children [[box :size "initial" :width "160px"
+                     :children [[box :size "initial" :width "170px"
                                  :child [title :level :level2 :label "Device Name"]]
                                 [gap :size "15px"]
                                 [box :size "initial" :width "100px"
@@ -142,15 +142,15 @@
                                                 (reset! inverted? true))
                                  :md-icon-name "zmdi zmdi-arrow-forward zmdi-hc-rotate-90"]
                                 [gap :size "15px"]
-                                [box :size "initial" :width "115px"
+                                [box :size "initial" :width "220px"
                                  :child [title :level :level2 :label "Owned By"]]
-                                [gap :size "15px"]
-                                [box :size "initial" :width "185px"
+                                [gap :size "30px"]
+                                [box :size "initial" :width "180px"
                                  :child [title :level :level2 :label "Initial State Link"]]
-                                [gap :size "15px"]
-                                [box :size "initial" :width "170px"
+                                [gap :size "30px"]
+                                [box :size "initial" :width "180px"
                                  :child [title :level :level2 :label "Device Number"]]
-                                [gap :size "15px"]
+                                [gap :size "30px"]
                                 [box :size "initial" :width "170px"
                                  :child [title :level :level2 :label "Assigned Date"]]
                                 ]
