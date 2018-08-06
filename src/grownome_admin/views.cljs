@@ -8,6 +8,7 @@
    [re-com.modal-panel :refer [modal-panel]]
    [grownome-admin.subs :as subs]
    [reagent.core :as    reagent]
+   [clojure.string :as str]
    ))
 
 ;; page links
@@ -32,8 +33,11 @@
 (defn home-panel []
   )
 
-
-
+;; trims the date registered entry of devices list of unnecessary info
+(defn split-delete-date [date]
+  (str/join "\n"
+        (drop-last 5 (str/split date #" ")))
+  )
 
 ;; devices page
 
@@ -68,7 +72,7 @@
           [box :size "initial" :width "180px"
            :child [p (get device "number" "Default Value")]]
           [box :size "initial" :width "170px"
-           :child [p (get device "assignedDate" "Default Value")]]
+           :child [p (str (split-delete-date (get device "assignedDate" "Default Value")))]]
           [md-icon-button :md-icon-name "zmdi zmdi-edit"
            :on-click #(reset! edit-mode? true)]]
          [[box :size "initial" :width "1px" :child [title :label ""]]
@@ -93,7 +97,7 @@
           [box :size "initial" :width "180px"
            :child [p (get device "number" "Default Value")]]
           [box :size "initial" :width "170px"
-           :child [p (get device "assignedDate" "Default Value")]]
+           :child [p (str (split-delete-date (get device "assignedDate" "Default Value")))]]
           [md-icon-button :md-icon-name "zmdi zmdi-edit"
            :on-click #(do (re-frame/dispatch [::events/owned-updatedb owned-val])
                           (re-frame/dispatch [::events/islink-updatedb link-val])

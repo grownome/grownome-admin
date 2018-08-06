@@ -11,7 +11,7 @@
     "@firebase/database": "^0.3.4",
     "@firebase/firestore": "^0.6.1",
     "create-react-class": "^15.6.3",
-   "react": "^16.4.2",
+    "react": "^16.4.2",
     "react-dom": "^16.4.2"
   },
   "devDependencies": {
@@ -28,9 +28,9 @@
     "release": "shadow-cljs release browser",
     "server": "shadow-cljs server",
     "clean": "rm -rf target; rm -rf resources/public/js",
-      "test": "shadow-cljs watch test",
-      "ci": "shadow-cljs compile ci",
-      "ci-test": "karma start --single-run"
+    "test": "shadow-cljs watch test",
+    "ci": "shadow-cljs compile ci",
+    "ci-test": "karma start --single-run"
   },
   "repository": {
     "type": "git",
