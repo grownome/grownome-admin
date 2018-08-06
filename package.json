@@ -1,0 +1,45 @@
+{
+  "name": "grownome-admin",
+  "version": "1.0.0",
+  "description": "A [re-frame](https://github.com/Day8/re-frame) application designed to ... well, that part is up to you.",
+  "directories": {
+    "test": "test"
+  },
+  "dependencies": {
+    "@firebase/app": "^0.3.3",
+    "@firebase/auth": "^0.7.2",
+    "@firebase/database": "^0.3.4",
+    "@firebase/firestore": "^0.6.1",
+    "create-react-class": "^15.6.3",
+    "react": "^16.4.2",
+    "react-dom": "^16.4.2"
+  },
+  "devDependencies": {
+    "highlight.js": "^9.12.0",
+    "karma": "^2.0.5",
+    "karma-chrome-launcher": "^2.2.0",
+    "karma-cljs-test": "^0.1.0",
+    "react-flip-move": "^3.0.2",
+    "react-highlight.js": "^1.0.7",
+    "shadow-cljs": "^2.4.28"
+  },
+  "scripts": {
+    "dev": "shadow-cljs watch browser test --debug",
+    "release": "shadow-cljs release browser",
+    "server": "shadow-cljs server",
+    "clean": "rm -rf target; rm -rf resources/public/js",
+    "test": "shadow-cljs watch test",
+    "ci": "shadow-cljs compile ci",
+    "ci-test": "karma start --single-run"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/grownome/grownome-admin.git"
+  },
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/grownome/grownome-admin/issues"
+  },
+  "homepage": "https://github.com/grownome/grownome-admin#readme"
+}

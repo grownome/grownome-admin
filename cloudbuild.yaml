@@ -1,0 +1,9 @@
+steps:
+  - name: 'gcr.io/cloud-builders/npm'
+    args: ['install']
+  - name: 'gcr.io/grownome/shadow-cljs'
+    args: ['compile', 'ci']
+  - name: 'gcr.io/grownome/karma'
+    args: ['run', 'ci-test']
+  - name: 'gcr.io/grownome/shadow-cljs'
+    args: ['release', 'browser']
