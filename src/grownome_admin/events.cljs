@@ -51,23 +51,9 @@
  ::device-get
  (fn [_ _] {:firestore/get {:path-collection [:device-names]
                             :on-success [::save-devices]}}))
-
-(def test-data
-  [:devices [:docs
-             [:data ["xx" "11"] ["yy" "22"]]
-             [:id "id"]]])
-
-(defn get-devices
-  "Pull the :devices data out of the incoming vector"
-  [d]
-  (when (= :devices (first d))
-    (second d)))
-
-(defn get-docs
-  "Extract the :docs data"
-  [d]
-  (when (= :docs (first d))
-    (rest d)))
+(def test-devices
+  [{:data {"assignedDate" #inst "2018-07-31T15:25:24.289-00:00", "deviceName" "Europe", "initialStateLink" "www.reddit.com", "number" 30, "owned" "FALSE"}, :id "Europe", :metadata {:from-cache false, :has-pending-writes false}, :ref ["device-names" "Europe"], :object nil}
+   {:data {"assignedDate" #inst "2018-07-31T15:37:01.901-00:00", "deviceName" "Sunday", "initialStateLink" "www.fred.com", "number" 163, "owned" "TRUE"}, :id "Sunday", :metadata {:from-cache false, :has-pending-writes false}, :ref ["device-names" "Sunday"], :object nil}])
 
 (defn keywordize-pair
   "Convert a 2-string vector pair into a keyword/string vector pair
@@ -75,23 +61,20 @@
   [[a b]]
   [(keyword a) b])
 
-(defn get-as-map
-  "Convert heterogeneous vectors into a map"
+(defn remove-vector
+ "Removes the outer vector from the data"
+ [d]
+ (first (filter some? d)))
+
+(defn drop-data
+  "Drop extraneous data from our device information"
   [d]
-  (reduce (fn [result d]
-            (case (first d)
-              :data (into result (map keywordize-pair (rest d)))
-              :id (assoc result :id (second d))
-              result))
-          {}
-          d))
+  (dissoc d :metadata :ref :object))
 
 (defn convert-data
-  "put it all together"
-  [d]
-  [:devices (-> (get-devices d)
-                get-docs
-                get-as-map)])
+ [d]
+ (drop-data (remove-vector (keywordize-pair d)))
+ )
 
 ;; [:devices [:docs [:data [...], :id [id], ...]]]
 ;; Save the devices retrieved from Firestore to the DB
