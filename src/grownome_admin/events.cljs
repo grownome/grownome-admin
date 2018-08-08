@@ -2,7 +2,8 @@
   (:require
    [re-frame.core :as re-frame]
    [grownome-admin.db :as db]
-   [day8.re-frame.tracing :refer-macros [fn-traced defn-traced]]))
+   [day8.re-frame.tracing :refer-macros [fn-traced defn-traced]]
+   [clojure.walk :as walk]))
 
 (re-frame/reg-event-db
  ::initialize-db
@@ -55,16 +56,14 @@
   [{:data {"assignedDate" #inst "2018-07-31T15:25:24.289-00:00", "deviceName" "Europe", "initialStateLink" "www.reddit.com", "number" 30, "owned" "FALSE"}, :id "Europe", :metadata {:from-cache false, :has-pending-writes false}, :ref ["device-names" "Europe"], :object nil}
    {:data {"assignedDate" #inst "2018-07-31T15:37:01.901-00:00", "deviceName" "Sunday", "initialStateLink" "www.fred.com", "number" 163, "owned" "TRUE"}, :id "Sunday", :metadata {:from-cache false, :has-pending-writes false}, :ref ["device-names" "Sunday"], :object nil}])
 
-(defn keywordize-pair
-  "Convert a 2-string vector pair into a keyword/string vector pair
-  (note the extra set of square brackets)"
-  [[a b]]
-  [(keyword a) b])
+(defn build-index
+  "Built an index out of a list map using a key"
+  [coll k]
+  (println (count coll))
+  (reduce (fn [index data]
+            (assoc index (get-in data [:data k]) data))
+          {} coll))
 
-(defn remove-vector
- "Removes the outer vector from the data"
- [d]
- (first (filter some? d)))
 
 (defn drop-data
   "Drop extraneous data from our device information"
@@ -72,8 +71,13 @@
   (dissoc d :metadata :ref :object))
 
 (defn convert-data
- [d]
- (drop-data (remove-vector (keywordize-pair d)))
+  [d]
+  (let [e (get d :docs)
+        keywordify (walk/keywordize-keys e)
+        converted-data (map drop-data keywordify)
+        indexed-data (build-index converted-data :deviceName)]
+    (println indexed-data)
+    indexed-data)
  )
 
 ;; [:devices [:docs [:data [...], :id [id], ...]]]
@@ -81,7 +85,7 @@
 (re-frame/reg-event-db
  ::save-devices
  (fn [db [_ value]]
-   (assoc db :devices value)
+   (assoc db :devices (convert-data value))
         ))
 
 ;;; device editing updates Owned in DB
