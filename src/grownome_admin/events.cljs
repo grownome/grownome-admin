@@ -71,6 +71,7 @@
   (dissoc d :metadata :ref :object))
 
 (defn convert-data
+  "Pieces data conversion parts together"
   [d]
   (let [e (get d :docs)
         keywordify (walk/keywordize-keys e)
