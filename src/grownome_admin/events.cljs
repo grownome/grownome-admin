@@ -95,11 +95,11 @@
     (update-in db [:devices :docs [:id id]] assoc-in db [:devices :docs :data :owned] owned-val)))
 
 ;;; device editing updates Initial State Link in DB
-#_(re-frame/reg-event-db
+(re-frame/reg-event-db
  ::islink-updatedb
  (println "trying to change")
  (fn [db [_ ISLink-val id]]
-   (update-in db {:devices :docs :id id} assoc [:devices :docs :data :initialStateLink] ISLink-val)))
+   (update-in db [:devices id] #(assoc % :initialStateLink ISLink-val))))
 
 ;;; Firebase write to Firestore
 (re-frame/reg-event-fx

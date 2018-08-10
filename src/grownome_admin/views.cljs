@@ -61,23 +61,23 @@
          [              ;;use to bump columns to the right
           [box :size "initial" :width "1px" :child [title :label ""]]
           [box :size "initial" :width "170px"
-           :child [p (get device "deviceName" "Default Value")]]
+           :child [p (get device :deviceName "Default Value")]]
           [box :size "initial" :width "100px"
-           :child [p (get device "owned" "Default Value")]]
+           :child [p (get device :owned "Default Value")]]
           [gap :size "17px"] ;; required to accomodate Owned? sorting buttons
           [box :size "initial" :width "270px"
-           :child [p (get device "ownedBy" "Not Owned")]]
+           :child [p (get device :ownedBy "Not Owned")]]
           [box :size "initial" :width "250px"
-           :child [p (get device "initialStateLink" "Default Value")]]
+           :child [p (get device :initialStateLink "Default Value")]]
           [box :size "initial" :width "180px"
-           :child [p (get device "number" "Default Value")]]
+           :child [p (get device :number "Default Value")]]
           [box :size "initial" :width "170px"
-           :child [p (str (split-delete-date (get device "assignedDate" "Default Value")))]]
+           :child [p (str (split-delete-date (get device :assignedDate "Default Value")))]]
           [md-icon-button :md-icon-name "zmdi zmdi-edit"
            :on-click #(reset! edit-mode? true)]]
          [[box :size "initial" :width "1px" :child [title :label ""]]
           [box :size "initial" :width "160px"
-           :child [p (get device "deviceName" "Default Value")]]
+           :child [p (get device :deviceName "Default Value")]]
           [input-text
            :model owned-val
            :on-change #(do (re-frame/dispatch [::events/owned-updatedb owned-val])
@@ -87,20 +87,20 @@
            :height "20px"]
           [gap :size "17px"] ;; required to accomodate Owned? sorting buttons
           [box :size "initial" :width "115px"
-           :child [p (get device "ownedBy" "Not Owned")]]
+           :child [p (get device :ownedBy "Not Owned")]]
           [input-text
            :model link-val
-           :on-change #(do (re-frame/dispatch [::events/owned-updatedb owned-val])
+           :on-change #(do (re-frame/dispatch [::events/owned-updatedb link-val])
                            (reset! link-val %))
            :width "185px"
            :height "20px"]
           [box :size "initial" :width "210px"
-           :child [p (get device "number" "Default Value")]]
+           :child [p (get device :number "Default Value")]]
           [box :size "initial" :width "180px"
-           :child [p (str (split-delete-date (get device "assignedDate" "Default Value")))]]
+           :child [p (str (split-delete-date (get device :assignedDate "Default Value")))]]
           [md-icon-button :md-icon-name "zmdi zmdi-edit"
-           :on-click #(do (re-frame/dispatch [::events/owned-updatedb owned-val])
-                          (re-frame/dispatch [::events/islink-updatedb link-val])
+           :on-click #(do 
+                          (re-frame/dispatch [::events/islink-updatedb link-val (get device :deviceName)])
                           (reset! edit-mode? false)
                           )
            ]]
@@ -132,13 +132,13 @@
                                 [md-icon-button :size :smaller
                                  :style {:padding-top "20px"}
                                  :on-click #(do (reset! sorted? true)
-                                                (reset! sorted-field "owned")
+                                                (reset! sorted-field :owned)
                                                 (reset! inverted? false))
                                  :md-icon-name "zmdi zmdi-arrow-back zmdi-hc-rotate-90"]
                                 [md-icon-button :size :smaller
                                  :style {:padding-top "20px"}
                                  :on-click #(do (reset! sorted? true)
-                                                (reset! sorted-field "owned")
+                                                (reset! sorted-field :owned)
                                                 (reset! inverted? true))
                                  :md-icon-name "zmdi zmdi-arrow-forward zmdi-hc-rotate-90"]
                                 [gap :size "15px"]

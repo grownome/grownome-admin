@@ -16,7 +16,7 @@
 (re-frame/reg-sub
  ::devices
  (fn [db _]
-   (get-in db [:devices :docs])))
+   (map (fn [[k v]] v) (get-in db [:devices]))))
 
 ;; sort device listings
 (re-frame/reg-sub
