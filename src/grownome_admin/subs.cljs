@@ -16,7 +16,7 @@
 (re-frame/reg-sub
  ::devices
  (fn [db _]
-   (map (fn [[k v]] v) (get-in db [:devices]))))
+   (vals (get-in db [:devices]))))
 
 ;; sort device listings
 (re-frame/reg-sub
@@ -24,9 +24,9 @@
  :<- [::devices] ;;synctatic sugar to pull in devices subscription
  ;; can combine subscriptions if needed by repeating 
  (fn [devices [_ sorted? field inverted?] _]
-   (if @sorted?
-     (let [sorted-devices (sort-by #(get (:data %) @field) devices)]
-       (if @inverted?
+   (if sorted?
+     (let [sorted-devices (sort-by #(get (:data %) field) devices)]
+       (if inverted?
          (reverse sorted-devices)
          sorted-devices))
      devices)))

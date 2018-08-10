@@ -52,10 +52,6 @@
  ::device-get
  (fn [_ _] {:firestore/get {:path-collection [:device-names]
                             :on-success [::save-devices]}}))
-(def test-devices
-  [{:data {"assignedDate" #inst "2018-07-31T15:25:24.289-00:00", "deviceName" "Europe", "initialStateLink" "www.reddit.com", "number" 30, "owned" "FALSE"}, :id "Europe", :metadata {:from-cache false, :has-pending-writes false}, :ref ["device-names" "Europe"], :object nil}
-   {:data {"assignedDate" #inst "2018-07-31T15:37:01.901-00:00", "deviceName" "Sunday", "initialStateLink" "www.fred.com", "number" 163, "owned" "TRUE"}, :id "Sunday", :metadata {:from-cache false, :has-pending-writes false}, :ref ["device-names" "Sunday"], :object nil}])
-
 (defn build-index
   "Built an index out of a list map using a key"
   [coll k]
@@ -77,9 +73,7 @@
         keywordify (walk/keywordize-keys e)
         converted-data (map drop-data keywordify)
         indexed-data (build-index converted-data :deviceName)]
-    (println indexed-data)
-    indexed-data)
- )
+    indexed-data))
 
 ;; [:devices [:docs [:data [...], :id [id], ...]]]
 ;; Save the devices retrieved from Firestore to the DB
@@ -96,14 +90,9 @@
     (update-in db [:devices :docs [:id id]] assoc-in db [:devices :docs :data :owned] owned-val)))
 
 ;;; device editing updates Initial State Link in DB
-(re-frame/reg-event-db
- ::islink-updatedb
- (println "trying to change")
- (fn [db [_ ISLink-val id]]
-   (update-in db [:devices id] #(assoc % :initialStateLink ISLink-val))))
-
-;;; Firebase write to Firestore
 (re-frame/reg-event-fx
- :owned-update
- (fn [_ _] {:firestore/update {:path [:device-names :document]
-                               :data {:owned-val "owned-val"}}}))
+ ::update-device
+ (fn [{:keys [db]} [_ id device-updates ]]
+   {:db (update-in db [:devices id :data] #(merge % device-updates))
+    :firestore/update {:path [:device-names id]
+                       :data device-updates}}))

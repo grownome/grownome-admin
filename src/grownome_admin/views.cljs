@@ -80,9 +80,7 @@
            :child [p (get device :deviceName "Default Value")]]
           [input-text
            :model owned-val
-           :on-change #(do (re-frame/dispatch [::events/owned-updatedb owned-val])
-                           (println "things are triggering")
-                           (reset! owned-val %))
+           :on-change #(reset! owned-val %)
            :width "100px"
            :height "20px"]
           [gap :size "17px"] ;; required to accomodate Owned? sorting buttons
@@ -90,8 +88,7 @@
            :child [p (get device :ownedBy "Not Owned")]]
           [input-text
            :model link-val
-           :on-change #(do (re-frame/dispatch [::events/owned-updatedb link-val])
-                           (reset! link-val %))
+           :on-change #(reset! link-val %)
            :width "185px"
            :height "20px"]
           [box :size "initial" :width "210px"
@@ -99,10 +96,10 @@
           [box :size "initial" :width "180px"
            :child [p (str (split-delete-date (get device :assignedDate "Default Value")))]]
           [md-icon-button :md-icon-name "zmdi zmdi-edit"
-           :on-click #(do 
-                          (re-frame/dispatch [::events/islink-updatedb link-val (get device :deviceName)])
-                          (reset! edit-mode? false)
-                          )
+           :on-click #(do
+                        (re-frame/dispatch [::events/update-device (:deviceName device) {:initialStateLink (or @link-val (:initialStateLink device))
+                                                                    :ownedBy (or @owned-val (:ownedBy @owned-val))}]
+                                           (reset! edit-mode? false)))
            ]]
        )])))
 
@@ -114,54 +111,52 @@
     (let [sorted? (reagent/atom false)
           sorted-field (reagent/atom "")
           inverted? (reagent/atom false)
-          devices (re-frame/subscribe [::subs/devices-sorted sorted? sorted-field inverted?])
           ;; @ grabs these values from the atom, and keeps you safe from multiple
           ;; concurrent changes
-          ]
+          devices (re-frame/subscribe [::subs/devices-sorted @sorted? @sorted-field @inverted?])]
       (fn [] ;; needed when using multiple atoms so that things update properly
-        [v-box
-         :children [[h-box
-                     :max-width "1200px"
-                     :style {:margin "0"}
-                     :gap "0px"
-                     :children [[box :size "initial" :width "170px"
-                                 :child [title :level :level2 :label "Device Name"]]
-                                [gap :size "15px"]
-                                [box :size "initial" :width "100px"
-                                 :child [title :level :level2 :label "Owned?"]]
-                                [md-icon-button :size :smaller
-                                 :style {:padding-top "20px"}
-                                 :on-click #(do (reset! sorted? true)
-                                                (reset! sorted-field :owned)
-                                                (reset! inverted? false))
-                                 :md-icon-name "zmdi zmdi-arrow-back zmdi-hc-rotate-90"]
-                                [md-icon-button :size :smaller
-                                 :style {:padding-top "20px"}
-                                 :on-click #(do (reset! sorted? true)
-                                                (reset! sorted-field :owned)
-                                                (reset! inverted? true))
-                                 :md-icon-name "zmdi zmdi-arrow-forward zmdi-hc-rotate-90"]
-                                [gap :size "15px"]
-                                [box :size "initial" :width "220px"
-                                 :child [title :level :level2 :label "Owned By"]]
-                                [gap :size "30px"]
-                                [box :size "initial" :width "180px"
-                                 :child [title :level :level2 :label "Initial State Link"]]
-                                [gap :size "30px"]
-                                [box :size "initial" :width "180px"
-                                 :child [title :level :level2 :label "Device Number"]]
-                                [gap :size "30px"]
-                                [box :size "initial" :width "170px"
-                                 :child [title :level :level2 :label "Assigned Date"]]
-                                ]
-                     ]
-                    ;; code below pulls in the devices from device-row function
-                    (if-let [ds @devices]
-                      [h-box
-                       :children [[v-box ;; Device name
-                                   :children (into [] (for [d ds]
-                                                        (do [device-row (:data d)])))
-                                  ]]])]])))
+          [v-box
+           :children [[h-box
+                       :max-width "1200px"
+                       :style {:margin "0"}
+                       :gap "0px"
+                       :children [[box :size "initial" :width "170px"
+                                   :child [title :level :level2 :label "Device Name"]]
+                                  [gap :size "15px"]
+                                  [box :size "initial" :width "100px"
+                                   :child [title :level :level2 :label "Owned?"]]
+                                  [md-icon-button :size :smaller
+                                   :style {:padding-top "20px"}
+                                   :on-click #(do (reset! sorted? true)
+                                                  (reset! sorted-field :owned)
+                                                  (reset! inverted? false))
+                                   :md-icon-name "zmdi zmdi-arrow-back zmdi-hc-rotate-90"]
+                                  [md-icon-button :size :smaller
+                                   :style {:padding-top "20px"}
+                                   :on-click #(do (reset! sorted? true)
+                                                  (reset! sorted-field :owned)
+                                                  (reset! inverted? true))
+                                   :md-icon-name "zmdi zmdi-arrow-forward zmdi-hc-rotate-90"]
+                                  [gap :size "15px"]
+                                  [box :size "initial" :width "220px"
+                                   :child [title :level :level2 :label "Owned By"]]
+                                  [gap :size "30px"]
+                                  [box :size "initial" :width "180px"
+                                   :child [title :level :level2 :label "Initial State Link"]]
+                                  [gap :size "30px"]
+                                  [box :size "initial" :width "180px"
+                                   :child [title :level :level2 :label "Device Number"]]
+                                  [gap :size "30px"]
+                                  [box :size "initial" :width "170px"
+                                   :child [title :level :level2 :label "Assigned Date"]]
+                                  ]
+                       ]
+                      ;; code below pulls in the devices from device-row function
+                      (if-let [ds @devices]
+                        [h-box
+                         :children [[v-box ;; Device name
+                                     :children (into [] (for [d ds]
+                                                          (do [device-row (:data d)])))]]])]])))
 
 (defn devices-panel []
   [v-box
