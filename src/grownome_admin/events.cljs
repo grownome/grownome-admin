@@ -2,7 +2,8 @@
   (:require
    [re-frame.core :as re-frame]
    [grownome-admin.db :as db]
-   [day8.re-frame.tracing :refer-macros [fn-traced defn-traced]]))
+   [day8.re-frame.tracing :refer-macros [fn-traced defn-traced]]
+   [clojure.walk :as walk]))
 
 (re-frame/reg-event-db
  ::initialize-db
@@ -51,54 +52,35 @@
  ::device-get
  (fn [_ _] {:firestore/get {:path-collection [:device-names]
                             :on-success [::save-devices]}}))
+(defn build-index
+  "Built an index out of a list map using a key"
+  [coll k]
+  (println (count coll))
+  (reduce (fn [index data]
+            (assoc index (get-in data [:data k]) data))
+          {} coll))
 
-(def test-data
-  [:devices [:docs
-             [:data ["xx" "11"] ["yy" "22"]]
-             [:id "id"]]])
 
-(defn get-devices
-  "Pull the :devices data out of the incoming vector"
+(defn drop-data
+  "Drop extraneous data from our device information"
   [d]
-  (when (= :devices (first d))
-    (second d)))
-
-(defn get-docs
-  "Extract the :docs data"
-  [d]
-  (when (= :docs (first d))
-    (rest d)))
-
-(defn keywordize-pair
-  "Convert a 2-string vector pair into a keyword/string vector pair
-  (note the extra set of square brackets)"
-  [[a b]]
-  [(keyword a) b])
-
-(defn get-as-map
-  "Convert heterogeneous vectors into a map"
-  [d]
-  (reduce (fn [result d]
-            (case (first d)
-              :data (into result (map keywordize-pair (rest d)))
-              :id (assoc result :id (second d))
-              result))
-          {}
-          d))
+  (dissoc d :metadata :ref :object))
 
 (defn convert-data
-  "put it all together"
+  "Pieces data conversion parts together"
   [d]
-  [:devices (-> (get-devices d)
-                get-docs
-                get-as-map)])
+  (let [e (get d :docs)
+        keywordify (walk/keywordize-keys e)
+        converted-data (map drop-data keywordify)
+        indexed-data (build-index converted-data :deviceName)]
+    indexed-data))
 
 ;; [:devices [:docs [:data [...], :id [id], ...]]]
 ;; Save the devices retrieved from Firestore to the DB
 (re-frame/reg-event-db
  ::save-devices
  (fn [db [_ value]]
-   (assoc db :devices value)
+   (assoc db :devices (convert-data value))
         ))
 
 ;;; device editing updates Owned in DB
@@ -108,14 +90,9 @@
     (update-in db [:devices :docs [:id id]] assoc-in db [:devices :docs :data :owned] owned-val)))
 
 ;;; device editing updates Initial State Link in DB
-#_(re-frame/reg-event-db
- ::islink-updatedb
- (println "trying to change")
- (fn [db [_ ISLink-val id]]
-   (update-in db {:devices :docs :id id} assoc [:devices :docs :data :initialStateLink] ISLink-val)))
-
-;;; Firebase write to Firestore
 (re-frame/reg-event-fx
- :owned-update
- (fn [_ _] {:firestore/update {:path [:device-names :document]
-                               :data {:owned-val "owned-val"}}}))
+ ::update-device
+ (fn [{:keys [db]} [_ id device-updates ]]
+   {:db (update-in db [:devices id :data] #(merge % device-updates))
+    :firestore/update {:path [:device-names id]
+                       :data device-updates}}))

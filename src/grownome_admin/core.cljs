@@ -1,4 +1,4 @@
-(ns grownome-admin.core
+(ns ^:dev/once grownome-admin.core
   (:require
    [reagent.core :as reagent]
    [re-frame.core :as re-frame]
@@ -15,7 +15,7 @@
     (enable-console-print!)
     (println "dev mode")))
 
-(defn mount-root []
+(defn ^:dev/after-load mount-root []
   (re-frame/clear-subscription-cache!)
   (reagent/render [views/main-panel]
                   (.getElementById js/document "app")))
