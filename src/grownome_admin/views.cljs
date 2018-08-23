@@ -58,48 +58,49 @@
        :gap "10px"
        :children
        (if (not @edit-mode?)
-         [[box :size "180px" 
+         [[box :size "100px" 
            :child [:p (get device :deviceName "Default Value")]]
-          [box :size "100px"
+          [box :size "70px"
            :child [:p (get device :owned "Default Value")]]
-          [gap :size "17px"] ;; required to accomodate Owned? sorting buttons
-          [box :size "180px" :style {:overflow-wrap "break-word"}
+          [gap :size "10px"] ;; required to accomodate Owned? sorting buttons
+          [box :size "140px" :style {:overflow-wrap "break-word"}
            :child [:p (get device :ownedBy "Not Owned")]]
           [box :size "180px" :style {:overflow-wrap "break-word"}
            :child [:p (get device :initialStateLink "Default Value")]]
-          [gap :size "20px"]
-          [box :size "160px"
+          [box :size "110px"
            :child [:p (get device :number "Default Value")]]
-          [box :size "170px"
+          [box :size "120px"
            :child [:p (str (split-delete-date (get device :assignedDate "Default Value")))]]
           [md-icon-button :md-icon-name "zmdi zmdi-edit"
            :on-click #(reset! edit-mode? true)]]
-         [[box :size "180px"
+         [[box :size "100px"
            :child [:p (get device :deviceName "Default Value")]]
           [input-text
            :model owned-val
            :on-change #(reset! owned-val %)
-           :width "100px"
+           :width "70px"
            :height "20px"]
-          [gap :size "17px"] ;; required to accomodate Owned? sorting buttons
-          [box :size "180px" :style {:overflow-wrap "break-word"}
+          [gap :size "10px"] ;; required to accomodate Owned? sorting buttons
+          [box :size "140px" :style {:overflow-wrap "break-word"}
            :child [:p (get device :ownedBy "Not Owned")]]
           [input-text
            :model link-val
            :on-change #(reset! link-val %)
            :width "180px"
            :height "20px"]
-          [gap :size "20px"]
-          [box :size "160px"
+          [box :size "110px"
            :child [:p (get device :number "Default Value")]]
-          [box :size "170px"
+          [box :size "120px"
            :child [:p (str (split-delete-date (get device :assignedDate "Default Value")))]]
           [md-icon-button :md-icon-name "zmdi zmdi-edit"
            :on-click #(do
-                        (re-frame/dispatch [::events/update-device (:deviceName device) {:initialStateLink (or @link-val (:initialStateLink device))
-                                                                                         :ownedBy (or @owned-val (:ownedBy @owned-val))}]
+                        (re-frame/dispatch [::events/update-device (:deviceName device)
+                                            {:initialStateLink (or @link-val (:initialStateLink device))
+                                             :ownedBy (or @owned-val (:ownedBy @owned-val))}]
                                            (reset! edit-mode? false)))
-           ]]
+           ]
+          [md-icon-button :md-icon-name "zmdi zmdi-close-circle"
+           :on-click #(reset! edit-mode? false)]]
        )])))
 
 
@@ -117,35 +118,35 @@
           [v-box
            :children [[h-box
                      :width "100%"
-                     :children [[box :size "160px"
-                                 :child [title :level :level2 :label "Device Name"]]
-                                [gap :size "15px"]
-                                [box :size "100px"
-                                 :child [title :level :level2 :label "Owned?"]]
+                     :children [[box :size "100px"
+                                 :child [title :level :level3 :label "Device Name"]]
+                                [gap :size "10px"]
+                                [box :size "60px"
+                                 :child [title :level :level3 :label "Owned?"]]
                                 [md-icon-button :size :smaller
-                                 :style {:padding-top "20px"}
+                                 :style {:padding-top "10px"}
                                  :on-click #(do (reset! sorted? true)
                                                 (reset! sorted-field "owned")
                                                 (reset! inverted? false))
                                  :md-icon-name "zmdi zmdi-arrow-back zmdi-hc-rotate-90"]
                                 [md-icon-button :size :smaller
-                                 :style {:padding-top "20px"}
+                                 :style {:padding-top "10px"}
                                  :on-click #(do (reset! sorted? true)
                                                 (reset! sorted-field "owned")
                                                 (reset! inverted? true))
                                  :md-icon-name "zmdi zmdi-arrow-forward zmdi-hc-rotate-90"]
-                                [gap :size "15px"]
-                                [box :size "180px"
-                                 :child [title :level :level2 :label "Owned By"]]
-                                [gap :size "15px"]
-                                [box :size "185px"
-                                 :child [title :level :level2 :label "Initial State Link"]]
-                                [gap :size "15px"]
+                                [gap :size "10px"]
+                                [box :size "130px"
+                                 :child [title :level :level3 :label "Owned By"]]
+                                [gap :size "10px"]
+                                [box :size "190px"
+                                 :child [title :level :level3 :label "Initial State Link"]]
+                                [gap :size "10px"]
+                                [box :size "100px"
+                                 :child [title :level :level3 :label "Device Number"]]
+                                [gap :size "10px"]
                                 [box :size "170px"
-                                 :child [title :level :level2 :label "Device Number"]]
-                                [gap :size "15px"]
-                                [box :size "170px"
-                                 :child [title :level :level2 :label "Assigned Date"]]
+                                 :child [title :level :level3 :label "Assigned Date"]]
                                 ]
                      ]
                       ;; code below pulls in the devices from device-row function
