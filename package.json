@@ -11,6 +11,8 @@
     "@firebase/database": "^0.3.4",
     "@firebase/firestore": "^0.6.1",
     "create-react-class": "^15.6.3",
+    "firebase": "^5.4.1",
+    "firestore": "^1.1.6",
     "react": "^16.4.2",
     "react-dom": "^16.4.2"
   },

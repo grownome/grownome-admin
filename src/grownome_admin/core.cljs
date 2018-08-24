@@ -6,7 +6,8 @@
    [grownome-admin.routes :as routes]
    [grownome-admin.views :as views]
    [grownome-admin.config :as config]
-   [com.degel.re-frame-firebase :as firebase]
+   [com.degel.re-frame-firebase :as fb]
+   [firebase.app]
    ))
 
 
@@ -28,8 +29,9 @@
    :projectId "grownome-app"})
 
 (defn ^:export init []
+
   (routes/app-routes)
-  (firebase/init :firebase-app-info firebase-app-info
+  (fb/init :firebase-app-info firebase-app-info
                  :get-user-sub           [::events/user]
                  :set-user-event         [::events/set-user]
                  :default-error-handler  [::events/firebase-error])
