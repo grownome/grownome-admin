@@ -96,7 +96,7 @@
            :on-click #(do
                         (re-frame/dispatch [::events/update-device (:deviceName device)
                                             {:initialStateLink (or @link-val (:initialStateLink device))
-                                             :ownedBy (or @owned-val (:ownedBy @owned-val))}]
+                                             :owned (or @owned-val (:owned @owned-val))}]
                                            (reset! edit-mode? false)))
            ]
           [md-icon-button :md-icon-name "zmdi zmdi-close-circle"
